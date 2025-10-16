@@ -16,7 +16,17 @@ void setup() {
 }
 
 void loop() {
-  runChaserAnimation();
+  runFillAndDrain();
+  delay(500);  // Brief pause between animations
+  
+  // runBouncingLED();
+  // delay(500);
+  
+  // runChaserAnimation();
+  // delay(500);
+  
+  // runWrappingChaser();
+  // delay(500);
 }
 
 // ============================================================================
