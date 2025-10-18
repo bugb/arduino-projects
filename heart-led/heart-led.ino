@@ -1,11 +1,10 @@
 // ============================================================================
-// LED Animation Controller
+// LED Animation Controller - array-based pin order
 // ============================================================================
 
-// Configuration Constants
-const int FIRST_LED_PIN = 2;
-const int LAST_LED_PIN = 12;
-const int TOTAL_LEDS = LAST_LED_PIN - FIRST_LED_PIN + 1;
+const int pins[] = {4, 2, 3, 8, 9, 10, 6, 5}; // update to physical order you want to use
+const int NUM_PINS = sizeof(pins) / sizeof(pins[0]);
+
 const int ANIMATION_DELAY = 100;  // milliseconds between LED updates
 
 // ============================================================================
@@ -18,106 +17,107 @@ void setup() {
 void loop() {
   runFillAndDrain();
   delay(500);  // Brief pause between animations
-  
-  // runBouncingLED();
-  // delay(500);
-  
-  // runChaserAnimation();
-  // delay(500);
-  
-  // runWrappingChaser();
-  // delay(500);
+
+  runBouncingLED();
+  delay(500);
+
+  runChaserAnimation();
+  delay(500);
+
+  runWrappingChaser();
+  delay(500);
 }
 
 // ============================================================================
 // LED Initialization
 // ============================================================================
 void initializeLEDs() {
-  for (int pin = FIRST_LED_PIN; pin <= LAST_LED_PIN; pin++) {
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);  // Ensure all LEDs start off
+  for (int i = 0; i < NUM_PINS; i++) {
+    pinMode(pins[i], OUTPUT);
+    digitalWrite(pins[i], LOW);  // Ensure all LEDs start off
   }
 }
 
 // ============================================================================
-// Animation Functions
+// Animation Functions (array-indexed)
 // ============================================================================
 
 /**
- * Creates a 3-LED chaser effect that moves across all LEDs
+ * Creates a 3-LED chaser effect that moves across the pins[]
  */
 void runChaserAnimation() {
   const int CHASER_LENGTH = 3;
-  
-  // Move the 3-LED window across the LED strip
-  for (int position = 0; position <= TOTAL_LEDS - CHASER_LENGTH; position++) {
+  if (CHASER_LENGTH > NUM_PINS) return; // nothing to do
+
+  // Move the CHASER_LENGTH window across the array
+  for (int pos = 0; pos <= NUM_PINS - CHASER_LENGTH; pos++) {
     // Turn on current window of LEDs
-    for (int offset = 0; offset < CHASER_LENGTH; offset++) {
-      digitalWrite(FIRST_LED_PIN + position + offset, HIGH);
+    for (int off = 0; off < CHASER_LENGTH; off++) {
+      digitalWrite(pins[pos + off], HIGH);
     }
-    
+
     delay(ANIMATION_DELAY);
-    
+
     // Turn off current window of LEDs
-    for (int offset = 0; offset < CHASER_LENGTH; offset++) {
-      digitalWrite(FIRST_LED_PIN + position + offset, LOW);
+    for (int off = 0; off < CHASER_LENGTH; off++) {
+      digitalWrite(pins[pos + off], LOW);
     }
   }
 }
 
 /**
- * Alternative chaser with wrapping (uncomment to use)
+ * Alternative chaser with wrapping (wraps around the pins[] array)
  */
 void runWrappingChaser() {
   const int CHASER_LENGTH = 3;
-  int ledStates[TOTAL_LEDS] = {0};  // Track LED states
-  
-  for (int position = 0; position < TOTAL_LEDS; position++) {
-    // Clear all LEDs
+  if (CHASER_LENGTH > NUM_PINS) return;
+
+  for (int pos = 0; pos < NUM_PINS; pos++) {
+    // Clear all LEDs first
     setAllLEDs(LOW);
-    
+
     // Turn on LEDs in chaser pattern (with wrapping)
-    for (int offset = 0; offset < CHASER_LENGTH; offset++) {
-      int ledIndex = (position + offset) % TOTAL_LEDS;
-      digitalWrite(FIRST_LED_PIN + ledIndex, HIGH);
+    for (int off = 0; off < CHASER_LENGTH; off++) {
+      int idx = (pos + off) % NUM_PINS;
+      digitalWrite(pins[idx], HIGH);
     }
-    
+
     delay(ANIMATION_DELAY);
   }
 }
 
 /**
- * Single LED bouncing back and forth
+ * Single LED bouncing back and forth across the pins[] order
  */
 void runBouncingLED() {
   // Forward direction
-  for (int pin = FIRST_LED_PIN; pin <= LAST_LED_PIN; pin++) {
-    digitalWrite(pin, HIGH);
+  for (int i = 0; i < NUM_PINS; i++) {
+    digitalWrite(pins[i], HIGH);
     delay(ANIMATION_DELAY);
-    digitalWrite(pin, LOW);
+    digitalWrite(pins[i], LOW);
   }
-  
+
   // Reverse direction
-  for (int pin = LAST_LED_PIN; pin >= FIRST_LED_PIN; pin--) {
-    digitalWrite(pin, HIGH);
+  for (int i = NUM_PINS - 1; i >= 0; i--) {
+    digitalWrite(pins[i], HIGH);
     delay(ANIMATION_DELAY);
-    digitalWrite(pin, LOW);
+    digitalWrite(pins[i], LOW);
   }
 }
 
 /**
- * Fill up LEDs then drain them
+ * Fill up LEDs then drain them (uses pins[] order)
  */
 void runFillAndDrain() {
   // Fill up
-  for (int pin = FIRST_LED_PIN; pin <= LAST_LED_PIN; pin++) {
-    digitalWrite(pin, HIGH);
+  for (int i = 0; i < NUM_PINS; i++) {
+    digitalWrite(pins[i], HIGH);
     delay(ANIMATION_DELAY);
   }
-  
+
   // Drain
-  for (int pin = LAST_LED_PIN; pin >= FIRST_LED_PIN; pin--) {
-    digitalWrite(pin, LOW);
+  for (int i = NUM_PINS - 1; i >= 0; i--) {
+    digitalWrite(pins[i], LOW);
     delay(ANIMATION_DELAY);
   }
 }
@@ -131,8 +131,8 @@ void runFillAndDrain() {
  * @param state HIGH or LOW
  */
 void setAllLEDs(int state) {
-  for (int pin = FIRST_LED_PIN; pin <= LAST_LED_PIN; pin++) {
-    digitalWrite(pin, state);
+  for (int i = 0; i < NUM_PINS; i++) {
+    digitalWrite(pins[i], state);
   }
 }
 
