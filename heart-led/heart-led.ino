@@ -150,7 +150,7 @@ void runFillTopToBottomThenBottomToTop() {
   delay(300); // pause before next cycle
 }
 
-// Layered liquid fill - fills bottom-to-top, drains top-to-bottom, then fills top-to-bottom
+// Layered liquid fill with smooth breathing effect - fills bottom-to-top, drains top-to-bottom, then fills top-to-bottom
 void runLayeredFill() {
   // Define layers - each array contains the pin numbers that light up together
   const int layer1[] = {4, 2, 5};      // bottom layer
@@ -163,74 +163,44 @@ void runLayeredFill() {
   const int layer3_size = 2;
   const int layer4_size = 1;
   
-  // Fill UP (bottom to top) - turn on each layer
-  for (int i = 0; i < layer1_size; i++) {
-    digitalWrite(layer1[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
+  // Fill UP (bottom to top) - smooth fade in each layer
+  fadeLayer(layer1, layer1_size, true);
+  delay(200);
   
-  for (int i = 0; i < layer2_size; i++) {
-    digitalWrite(layer2[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer2, layer2_size, true);
+  delay(200);
   
-  for (int i = 0; i < layer3_size; i++) {
-    digitalWrite(layer3[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer3, layer3_size, true);
+  delay(200);
   
-  for (int i = 0; i < layer4_size; i++) {
-    digitalWrite(layer4[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer4, layer4_size, true);
+  delay(500); // hold full
   
-  delay(ANIMATION_DELAY * 2); // hold full
+  // Drain DOWN (top to bottom) - smooth fade out each layer in reverse
+  fadeLayer(layer4, layer4_size, false);
+  delay(200);
   
-  // Drain DOWN (top to bottom) - turn off each layer in reverse
-  for (int i = 0; i < layer4_size; i++) {
-    digitalWrite(layer4[i], LOW);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer3, layer3_size, false);
+  delay(200);
   
-  for (int i = 0; i < layer3_size; i++) {
-    digitalWrite(layer3[i], LOW);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer2, layer2_size, false);
+  delay(200);
   
-  for (int i = 0; i < layer2_size; i++) {
-    digitalWrite(layer2[i], LOW);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer1, layer1_size, false);
+  delay(300); // pause before reverse
   
-  for (int i = 0; i < layer1_size; i++) {
-    digitalWrite(layer1[i], LOW);
-  }
-  delay(ANIMATION_DELAY * 3);
+  // Fill DOWN (top to bottom) - smooth fade in each layer from top
+  fadeLayer(layer4, layer4_size, true);
+  delay(200);
   
-  delay(ANIMATION_DELAY * 2); // pause before reverse
+  fadeLayer(layer3, layer3_size, true);
+  delay(200);
   
-  // Fill DOWN (top to bottom) - turn on each layer from top
-  for (int i = 0; i < layer4_size; i++) {
-    digitalWrite(layer4[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
+  fadeLayer(layer2, layer2_size, true);
+  delay(200);
   
-  for (int i = 0; i < layer3_size; i++) {
-    digitalWrite(layer3[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
-  
-  for (int i = 0; i < layer2_size; i++) {
-    digitalWrite(layer2[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
-  
-  for (int i = 0; i < layer1_size; i++) {
-    digitalWrite(layer1[i], HIGH);
-  }
-  delay(ANIMATION_DELAY * 3);
-  
-  delay(ANIMATION_DELAY * 2); // hold full
+  fadeLayer(layer1, layer1_size, true);
+  delay(500); // hold full
   
   // Clear all for next cycle
   clearAllLEDs();
@@ -257,6 +227,32 @@ void runFillThenDrainReverse() {
 // ============================================================================
 // Utility Functions
 // ============================================================================
+
+/**
+ * Smooth fade in/out for a layer of LEDs
+ * @param layer Array of pin numbers
+ * @param size Number of pins in the layer
+ * @param fadeIn true for fade in, false for fade out
+ */
+void fadeLayer(const int layer[], int size, bool fadeIn) {
+  if (fadeIn) {
+    // Fade in from 0 to 255
+    for (int brightness = 0; brightness <= 255; brightness += 5) {
+      for (int j = 0; j < size; j++) {
+        analogWrite(layer[j], brightness);
+      }
+      delay(10);  // Smooth animation speed
+    }
+  } else {
+    // Fade out from 255 to 0
+    for (int brightness = 255; brightness >= 0; brightness -= 5) {
+      for (int j = 0; j < size; j++) {
+        analogWrite(layer[j], brightness);
+      }
+      delay(10);  // Smooth animation speed
+    }
+  }
+}
 
 /**
  * Set all LEDs to the same state
