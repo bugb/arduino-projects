@@ -6,7 +6,7 @@ const int pins[] = {4, 2, 3, 8, 9, 10, 6, 5}; // update to physical order you wa
 const int NUM_PINS = sizeof(pins) / sizeof(pins[0]);
 
 const int ANIMATION_DELAY = 100;  // milliseconds between LED updates
-
+const int DELAY = 500;  // General delay between animations
 // ============================================================================
 // Setup
 // ============================================================================
@@ -15,26 +15,24 @@ void setup() {
 }
 
 void loop() {
-  // runFillTopToBottomThenBottomToTop();
-  // delay(500);  // Brief pause between animations
+  runLayeredFill();
+  delay(DELAY);  // Brief pause between animations
 
   //// Uncomment to test other animations:
-  runLayeredFill();
-  delay(500);
-  // runFillThenDrainReverse();
-  // delay(500);
+  runFillTopToBottomThenBottomToTop();
+  delay(DELAY);
 
-  // runFillAndDrain();
-  // delay(500);
+  runFillAndDrain();
+  delay(DELAY);
 
-  // runBouncingLED();
-  // delay(500);
+  runBouncingLED();
+  delay(DELAY);
 
-  // runChaserAnimation();
-  // delay(500);
+  runChaserAnimation();
+  delay(DELAY);
 
-  // runWrappingChaser();
-  // delay(500);
+  runWrappingChaser();
+  delay(DELAY);
 }
 
 // ============================================================================
@@ -205,24 +203,6 @@ void runLayeredFill() {
   // Clear all for next cycle
   clearAllLEDs();
 }
-
-// Fill top->bottom, then drain bottom->top (turn off in reverse)
-void runFillThenDrainReverse() {
-  // Fill top -> bottom
-  for (int i = 0; i < NUM_PINS; ++i) {
-    digitalWrite(pins[i], HIGH);
-    delay(ANIMATION_DELAY);
-  }
-
-  delay(ANIMATION_DELAY);
-
-  // Drain bottom -> top (turn off in reverse order)
-  for (int i = NUM_PINS - 1; i >= 0; --i) {
-    digitalWrite(pins[i], LOW);
-    delay(ANIMATION_DELAY);
-  }
-}
-
 
 // ============================================================================
 // Utility Functions
